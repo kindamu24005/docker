@@ -1,11 +1,15 @@
 #rubyの2.7を使うよ
 FROM ruby:2.7 
 
-#ディレクトリを作る。というコマンドを実行(RUN)
-RUN mkdir /var/www
-#main.rbをwwwの下にコピー
-COPY main.rb /var/www
+#ディレクトリを作る。
+WORKDIR /var/www
 
-#COM([]の中身を実行するの意味)　ここではmain.rbを起動するの意味　
-CMD ["ruby", "/var/www/main.rb"]
+#./src(アプリケーションコードは全部srcの中にある)をwwwの下にコピー
+COPY ./src /var/www
+
+RUN bundle config --local set path 'vendor/bundle'
+RUN bundle install
+
+#COM([]の中身を実行するの意味)　bashを起動する
+CMD ["bundle", "exec", "ruby", "app.rb"]
 
