@@ -1,15 +1,26 @@
 #rubyの2.7を使うよ
 FROM ruby:2.7 
 
+ENV RAILS_ENV=production
+
+#必要なライブラリのインストール
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
+  && apt-get update -qq \
+  && apt-get install -y nodejs yarn
+
 #ディレクトリを作る。
-WORKDIR /var/www
+WORKDIR /app
 
-#./src(アプリケーションコードは全部srcの中にある)をwwwの下にコピー
-COPY ./src /var/www
+#./src(アプリケーションコードは全部srcの中にある)をappの下にコピー
+COPY ./src /app
 
-RUN bundle config --local set path 'vendor/bundle'
-RUN bundle install
+#ルビー関連のライブラリのインストール
+RUN bundle config --local set path 'vendor/bundle' \
+  && bundle install
 
-#COM([]の中身を実行するの意味)　bashを起動する
-CMD ["bundle", "exec", "ruby", "app.rb"]
+
+COPY start.sh /start.sh
+RUN chmod 744 /start.sh
+CMD [ "sh", "/start.sh" ]
 
